@@ -1,6 +1,13 @@
 # Local .terraform directories
 .terraform/
 
+# Modules don't check in lock files — provider version constraints live in
+# versions.tf and the caller's root configuration owns the lock file.
+.terraform.lock.hcl
+
+# Lock files in examples are generated on terraform init and not checked in
+examples/**/.terraform.lock.hcl
+
 # .tfstate files
 *.tfstate
 *.tfstate.*
