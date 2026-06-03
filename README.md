@@ -1,4 +1,4 @@
-# terraform-kubernetes-oauthed-mcp
+# terraform-kubernetes-p0-oauthed-mcp
 
 Terraform module that deploys [oauthed-mcp](https://github.com/p0-security/oauthed-mcp-tools) via the [p0-helm-oauthed-mcp](https://github.com/p0-security/p0-helm-oauthed-mcp) umbrella Helm chart. The chart bundles Envoy Gateway, cert-manager, and Let's Encrypt (ACME HTTP-01) into a single install.
 
