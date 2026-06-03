@@ -6,7 +6,8 @@ provider "helm" {
 }
 
 module "oauthed_mcp" {
-  source = "../.."
+  source  = "p0-security/p0-oauthed-mcp/kubernetes"
+  version = "0.1.1"
 
   release_name     = var.release_name
   namespace        = var.namespace
