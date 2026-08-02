@@ -1,7 +1,7 @@
 locals {
   # Pinned chart version for this module release. Update in lockstep with
   # module version tags — see the compatibility matrix in README.md.
-  chart_version = "0.8.3"
+  chart_version = "0.8.4"
 }
 
 resource "helm_release" "oauthed_mcp" {
