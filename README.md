@@ -34,9 +34,13 @@ module "oauthed_mcp" {
 
 Values are merged left-to-right (last wins), equivalent to `helm install -f`. See the [chart's values.yaml](https://github.com/p0-security/p0-helm-oauthed-mcp/blob/main/values.yaml) for the full schema.
 
-Nothing needs to exist in the cluster before `terraform apply`. The chart generates its own `app-secrets` Secret from a pre-install hook, so there is no out-of-band setup step to run first. Afterwards, set the real OIDC client secret — and, on an external database, the real PostgreSQL password — with `kubectl patch`; the hook writes a placeholder for the first and never overwrites either once set.
+There is no secret setup step to run before `terraform apply`. The chart creates `app-secrets` itself, from a pre-install hook. The cluster prerequisites still apply, though — a working block-storage StorageClass for the bundled PostgreSQL, which on EKS means the EBS CSI driver add-on. Those are listed in the [p0-helm-oauthed-mcp deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#prerequisites).
 
-For all post-deploy steps (DNS, verification, staging→prod), follow the [p0-helm-oauthed-mcp deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#deploy).
+Afterwards, patch in the real OIDC client secret, and on an external database the real PostgreSQL password. The hook writes a placeholder for the first and never overwrites either once set. Restart both Deployments after patching: they read the Secret when a pod starts, so running pods keep the old value until they are replaced.
+
+If your secrets already come from External Secrets or Vault, set `oauthed-mcp.generateSecrets: false` in `values` and create the Secret yourself.
+
+For all post-deploy steps (DNS, verification, staging→prod), follow the [deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#deploy).
 
 ## Compatibility matrix
 
