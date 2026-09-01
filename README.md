@@ -39,6 +39,10 @@ There is no secret setup step to run before `terraform apply`. The chart creates
 Afterwards, patch in the real OIDC client secret, and on an external database the real PostgreSQL password. The hook writes a placeholder for the first and never overwrites either once set. Restart both Deployments after patching — they read the Secret when a pod starts, so running pods keep the old value until they are replaced:
 
 ```bash
+kubectl -n <namespace> patch secret app-secrets \
+  --type merge \
+  -p '{"stringData":{"OIDC_CLIENT_SECRET":"<your-oidc-client-secret>"}}'
+
 kubectl -n <namespace> rollout restart deploy/oauth-server deploy/mcp-unified-server
 ```
 
