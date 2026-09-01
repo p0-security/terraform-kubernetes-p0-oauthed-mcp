@@ -13,7 +13,7 @@ provider "helm" {
 
 module "oauthed_mcp" {
   source  = "p0-security/oauthed-mcp/kubernetes"
-  version = "0.1.9"
+  version = "0.1.10"
 
   values = [
     file("${path.module}/values.yaml"),
@@ -34,7 +34,9 @@ module "oauthed_mcp" {
 
 Values are merged left-to-right (last wins), equivalent to `helm install -f`. See the [chart's values.yaml](https://github.com/p0-security/p0-helm-oauthed-mcp/blob/main/values.yaml) for the full schema.
 
-Before applying, and for all post-deploy steps (DNS, verification, staging→prod), follow the [p0-helm-oauthed-mcp deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#deploy).
+Nothing needs to exist in the cluster before `terraform apply`. The chart generates its own `app-secrets` Secret from a pre-install hook, so there is no out-of-band setup step to run first. Afterwards, set the real OIDC client secret — and, on an external database, the real PostgreSQL password — with `kubectl patch`; the hook writes a placeholder for the first and never overwrites either once set.
+
+For all post-deploy steps (DNS, verification, staging→prod), follow the [p0-helm-oauthed-mcp deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#deploy).
 
 ## Compatibility matrix
 
@@ -42,6 +44,7 @@ Each module version pins an exact chart version. To use a specific chart version
 
 | Module version | Chart version |
 |----------------|---------------|
+| 0.1.10         | 0.10.0        |
 | 0.1.9          | 0.8.6         |
 | 0.1.8          | 0.8.5         |
 | 0.1.7          | 0.8.4         |
