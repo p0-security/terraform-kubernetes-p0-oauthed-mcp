@@ -12,7 +12,7 @@ provider "helm" {
 }
 
 module "oauthed_mcp" {
-  source  = "p0-security/oauthed-mcp/kubernetes"
+  source  = "p0-security/p0-oauthed-mcp/kubernetes"
   version = "0.1.10"
 
   values = [
