@@ -13,7 +13,7 @@ provider "helm" {
 
 module "oauthed_mcp" {
   source  = "p0-security/oauthed-mcp/kubernetes"
-  version = "0.1.9"
+  version = "0.1.10"
 
   values = [
     file("${path.module}/values.yaml"),
@@ -34,7 +34,21 @@ module "oauthed_mcp" {
 
 Values are merged left-to-right (last wins), equivalent to `helm install -f`. See the [chart's values.yaml](https://github.com/p0-security/p0-helm-oauthed-mcp/blob/main/values.yaml) for the full schema.
 
-Before applying, and for all post-deploy steps (DNS, verification, staging→prod), follow the [p0-helm-oauthed-mcp deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#deploy).
+There is no secret setup step to run before `terraform apply`. The chart creates `app-secrets` itself, from a pre-install hook. The cluster prerequisites still apply, though — a working block-storage StorageClass for the bundled PostgreSQL, which on EKS means the EBS CSI driver add-on. Those are listed in the [p0-helm-oauthed-mcp deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#prerequisites).
+
+Afterwards, patch in the real OIDC client secret, and on an external database the real PostgreSQL password. The hook writes a placeholder for the first and never overwrites either once set. Restart both Deployments after patching — they read the Secret when a pod starts, so running pods keep the old value until they are replaced:
+
+```bash
+kubectl -n <namespace> patch secret app-secrets \
+  --type merge \
+  -p '{"stringData":{"OIDC_CLIENT_SECRET":"<your-oidc-client-secret>"}}'
+
+kubectl -n <namespace> rollout restart deploy/oauth-server deploy/mcp-unified-server
+```
+
+If your secrets already come from External Secrets or Vault, set `oauthed-mcp.generateSecrets: false` in `values` and create the Secret yourself. It has to exist before the release is created, so with `create_namespace = true` the namespace does not exist yet at that point — create it outside Terraform and set `create_namespace = false`, or let a separate `kubernetes_namespace` resource own it.
+
+For all post-deploy steps (DNS, verification, staging→prod), follow the [deployment guide](https://github.com/p0-security/p0-helm-oauthed-mcp#deploy).
 
 ## Compatibility matrix
 
@@ -42,6 +56,7 @@ Each module version pins an exact chart version. To use a specific chart version
 
 | Module version | Chart version |
 |----------------|---------------|
+| 0.1.10         | 0.10.1        |
 | 0.1.9          | 0.8.6         |
 | 0.1.8          | 0.8.5         |
 | 0.1.7          | 0.8.4         |
