@@ -43,7 +43,7 @@ kubectl -n <namespace> patch secret app-secrets \
   --type merge \
   -p '{"stringData":{"OIDC_CLIENT_SECRET":"<your-oidc-client-secret>"}}'
 
-kubectl -n <namespace> rollout restart deploy/oauth-server deploy/mcp-unified-server
+kubectl -n <namespace> rollout restart deploy/agentic-auth-server deploy/agentic-gateway-server
 ```
 
 If your secrets already come from External Secrets or Vault, set `oauthed-mcp.generateSecrets: false` in `values` and create the Secret yourself. It has to exist before the release is created, so with `create_namespace = true` the namespace does not exist yet at that point — create it outside Terraform and set `create_namespace = false`, or let a separate `kubernetes_namespace` resource own it.
